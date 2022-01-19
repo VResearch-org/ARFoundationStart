@@ -26,8 +26,6 @@ public class PlaceContent : MonoBehaviour
         }
     }
 
-    // test with EventSystem.current.IsPointerOverGameObject();
-
     bool IsClickOverUI()
     {
         PointerEventData data = new PointerEventData(EventSystem.current) {
@@ -36,5 +34,30 @@ public class PlaceContent : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         raycaster.Raycast(data, results);
         return results.Count > 0;
+    }
+
+    //alternatively, to put in extensions class (no need to keep track of canvases)
+    public static bool IsPointerOverGameObject()
+    {
+#if UNITY_EDITOR
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return true;
+        }
+#else
+
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            var touch = Input.GetTouch(i);
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return true;
+                }
+            }
+        }
+#endif
+        return false;
     }
 }
